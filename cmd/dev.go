@@ -51,8 +51,9 @@ var devCmd = &cobra.Command{
 					return
 				}
 
+				fileName = r.URL.Path[1:]
 				if filepath.Ext(fileName) == "" {
-					fileName = r.URL.Path[1:] + ".html"
+					fileName = fileName + ".html"
 				}
 			}
 
