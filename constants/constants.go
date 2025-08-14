@@ -1,3 +1,8 @@
 package constants
 
-var Version string
+import "html-cli/types"
+
+var (
+	Version string
+	Config  types.Config
+)
