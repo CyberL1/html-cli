@@ -12,18 +12,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var root string
-
 func init() {
 	rootCmd.AddCommand(devCmd)
 
-	devCmd.Flags().StringVarP(&root, "root", "r", ".", "Root")
+	devCmd.Flags().StringP("root", "r", ".", "Directory to watch")
 }
 
 var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Run a dev server for html",
 	Run: func(cmd *cobra.Command, args []string) {
+		root, _ := cmd.Flags().GetString("root")
+
 		watcher, err := fsnotify.NewWatcher()
 		if err != nil {
 			fmt.Println("Error setting up file watcher:", err)
