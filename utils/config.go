@@ -8,6 +8,16 @@ import (
 	"os"
 )
 
+func loadDefaults() {
+	if constants.Config.Dev.Root == "" {
+		constants.Config.Dev.Root = "."
+	}
+
+	if constants.Config.Dev.Port == 0 {
+		constants.Config.Dev.Port = 8080
+	}
+}
+
 func LoadConfig() error {
 	configFile, err := os.Open("html-cli.json")
 	if err != nil {
@@ -23,5 +33,7 @@ func LoadConfig() error {
 	}
 
 	constants.Config = config
+	loadDefaults()
+
 	return nil
 }

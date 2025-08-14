@@ -25,6 +25,8 @@ var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Run a dev server for html",
 	Run: func(cmd *cobra.Command, args []string) {
+		utils.LoadConfig()
+
 		watcher, err := fsnotify.NewWatcher()
 		if err != nil {
 			fmt.Println("Error setting up file watcher:", err)
