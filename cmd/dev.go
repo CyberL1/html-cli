@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"html-cli/utils"
 	"mime"
 	"net/http"
 	"os"
@@ -65,9 +66,7 @@ var devCmd = &cobra.Command{
 
 			fileType := mime.TypeByExtension(filepath.Ext(fileName))
 			if strings.HasPrefix(fileType, "text/html") {
-				hotReloadScript := "<script>(()=>{const sse = new EventSource('/_html/hot-reload');sse.onopen=()=>{console.log('* HTML hot-reload enabled *')};sse.onmessage=e=>{if(e.data==='reload'){console.log('* HTML hot-reload triggered *');location.reload()}}})()</script>"
-
-				fileContents = []byte(string(fileContents) + hotReloadScript)
+				fileContents = utils.ApplyBoilerplate(fileContents, true)
 			}
 
 			w.Header().Set("Content-Type", fileType)

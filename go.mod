@@ -2,7 +2,10 @@ module html-cli
 
 go 1.24.2
 
-require github.com/spf13/cobra v1.9.1
+require (
+	github.com/spf13/cobra v1.9.1
+	golang.org/x/net v0.43.0
+)
 
 require golang.org/x/sys v0.35.0 // indirect
 
