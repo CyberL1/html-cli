@@ -1,8 +1,6 @@
 package main
 
-import (
-	"html-cli/cmd"
-)
+import "html-cli/cmd"
 
 func main() {
 	cmd.Execute()
