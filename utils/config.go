@@ -10,12 +10,12 @@ import (
 )
 
 func loadDefaults() {
-	if constants.Config.Dev.Root == "" {
-		constants.Config.Dev.Root = "."
-	}
-
 	if constants.Config.Dev.Port == 0 {
 		constants.Config.Dev.Port = 8080
+	}
+
+	if constants.Config.Build.Directory == "" {
+		constants.Config.Build.Directory = "build"
 	}
 }
 
