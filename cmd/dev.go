@@ -17,7 +17,7 @@ import (
 func init() {
 	rootCmd.AddCommand(devCmd)
 
-	devCmd.Flags().StringVarP(&constants.Config.Dev.Root, "root", "r", ".", "Directory to watch")
+	devCmd.Flags().StringP("root", "r", ".", "Directory to watch")
 	devCmd.Flags().Uint16VarP(&constants.Config.Dev.Port, "port", "p", 8080, "Port to run dev server on")
 }
 
@@ -25,7 +25,8 @@ var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Run a dev server for html",
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.LoadConfig()
+		root, _ := cmd.Flags().GetString("root")
+		utils.LoadConfig(root)
 
 		watcher, err := fsnotify.NewWatcher()
 		if err != nil {
@@ -34,7 +35,7 @@ var devCmd = &cobra.Command{
 		}
 		defer watcher.Close()
 
-		err = watcher.Add(constants.Config.Dev.Root)
+		err = watcher.Add(root)
 		if err != nil {
 			fmt.Println("Error adding watcher:", err)
 			return
@@ -60,7 +61,7 @@ var devCmd = &cobra.Command{
 				}
 			}
 
-			fileContents, err := os.ReadFile(filepath.Join(constants.Config.Dev.Root, fileName))
+			fileContents, err := os.ReadFile(filepath.Join(root, fileName))
 			if err != nil {
 				http.Error(w, "File not found", http.StatusNotFound)
 				return
@@ -119,7 +120,7 @@ var devCmd = &cobra.Command{
 			}
 		}()
 
-		fmt.Printf("HTML Dev Server ready\n\nAddress: %s\nRoot: %s\n", "http://localhost:"+fmt.Sprint(constants.Config.Dev.Port), constants.Config.Dev.Root)
+		fmt.Printf("HTML Dev Server ready\n\nAddress: %s\nRoot: %s\n", "http://localhost:"+fmt.Sprint(constants.Config.Dev.Port), root)
 		http.ListenAndServe(":"+fmt.Sprint(constants.Config.Dev.Port), handler)
 	},
 }

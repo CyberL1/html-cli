@@ -6,6 +6,7 @@ import (
 	"html-cli/constants"
 	"html-cli/types"
 	"os"
+	"path/filepath"
 )
 
 func loadDefaults() {
@@ -18,8 +19,8 @@ func loadDefaults() {
 	}
 }
 
-func LoadConfig() error {
-	configFile, err := os.Open("html-cli.json")
+func LoadConfig(rootPath string) error {
+	configFile, err := os.Open(filepath.Join(rootPath, "html-cli.json"))
 	if err != nil {
 		return nil
 	}
