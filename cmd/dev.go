@@ -12,8 +12,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var root string
+
 func init() {
 	rootCmd.AddCommand(devCmd)
+
+	devCmd.Flags().StringVarP(&root, "root", "r", ".", "Root")
 }
 
 var devCmd = &cobra.Command{
@@ -27,7 +31,7 @@ var devCmd = &cobra.Command{
 		}
 		defer watcher.Close()
 
-		err = watcher.Add(".")
+		err = watcher.Add(root)
 		if err != nil {
 			fmt.Println("Error adding watcher:", err)
 			return
@@ -52,7 +56,7 @@ var devCmd = &cobra.Command{
 				}
 			}
 
-			fileContents, err := os.ReadFile(fileName)
+			fileContents, err := os.ReadFile(filepath.Join(root, fileName))
 			if err != nil {
 				http.Error(w, "File not found", http.StatusNotFound)
 				return
@@ -113,7 +117,7 @@ var devCmd = &cobra.Command{
 			}
 		}()
 
-		fmt.Println("HTML Dev Server listening on http://localhost:8080")
+		fmt.Printf("HTML Dev Server ready\n\nAddress: %s\nRoot: %s\n", "http://localhost:8080", root)
 		http.ListenAndServe(":8080", handler)
 	},
 }
