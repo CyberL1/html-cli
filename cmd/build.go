@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html-cli/constants"
 	"html-cli/utils"
-	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -32,7 +31,7 @@ var buildCmd = &cobra.Command{
 }
 
 func build(directory string) error {
-	dirContents, err := fs.ReadDir(os.DirFS(directory), ".")
+	dirContents, err := os.ReadDir(directory)
 	if err != nil {
 		return err
 	}
