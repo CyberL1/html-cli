@@ -45,29 +45,27 @@ var devCmd = &cobra.Command{
 		handler := http.NewServeMux()
 
 		handler.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			var fileName string
+			fullPath := filepath.Join(root, r.URL.Path[1:])
 
-			if r.URL.Path == "/" {
-				fileName = "index.html"
-			} else {
-				if strings.HasSuffix(r.URL.Path, ".html") {
-					http.Redirect(w, r, strings.TrimSuffix(r.URL.Path, ".html"), http.StatusTemporaryRedirect)
-					return
-				}
-
-				fileName = r.URL.Path[1:]
-				if filepath.Ext(fileName) == "" {
-					fileName = fileName + ".html"
-				}
-			}
-
-			fileContents, err := os.ReadFile(filepath.Join(root, fileName))
+			file, err := os.Stat(fullPath)
 			if err != nil {
 				http.Error(w, "File not found", http.StatusNotFound)
 				return
 			}
 
-			fileType := mime.TypeByExtension(filepath.Ext(fileName))
+			if file.IsDir() {
+				_, err := os.Stat(filepath.Join(fullPath, "index.html"))
+				if err != nil {
+					http.ServeFileFS(w, r, os.DirFS(fullPath), ".")
+					return
+				}
+
+				fullPath = filepath.Join(fullPath, "index.html")
+			}
+
+			fileContents, _ := os.ReadFile(fullPath)
+
+			fileType := mime.TypeByExtension(filepath.Ext(fullPath))
 			if strings.HasPrefix(fileType, "text/html") {
 				fileContents = utils.ApplyBoilerplate(fileContents, true)
 			}
