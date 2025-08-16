@@ -20,7 +20,7 @@ jobs:
       run: ./playground/get-wasm-files.sh
     - name: Build playground files
       working-directory: playground
-      run: html-cli build
+      run: go run ../main.go build
     - name: Setup Pages
       uses: actions/configure-pages@v4
     - name: Upload artifact
