@@ -59,6 +59,5 @@ func build(directory string) error {
 			os.WriteFile(filepath.Join(constants.Config.Build.Directory, directory, file.Name()), fileContents, 0644)
 		}
 	}
-
 	return nil
 }
