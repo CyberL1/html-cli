@@ -47,7 +47,8 @@
       const editor = monaco.editor.createDiffEditor(document.querySelector("div.editor"), {
         theme: prefersDarkTheme.matches ? "vs-dark" : "vs-light",
         automaticLayout: true,
-        originalEditable: true
+        originalEditable: true,
+        readOnly: true
       });
 
       monaco.editor.addKeybindingRules([
