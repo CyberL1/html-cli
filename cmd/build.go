@@ -53,6 +53,7 @@ func build(directory string) error {
 
 			if filepath.Ext(file.Name()) == ".html" {
 				fileContents = utils.ApplyBoilerplate(fileContents, false)
+				fileContents = utils.Minify(fileContents)
 			}
 
 			os.MkdirAll(filepath.Join(constants.Config.Build.Directory, directory), 0775)
