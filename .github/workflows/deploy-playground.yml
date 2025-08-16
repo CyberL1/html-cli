@@ -4,7 +4,9 @@ on:
   push:
     branches: ["main"]
     paths:
-      - "playground"
+      - "playground/**"
+      - "main_wasm.go"
+
   workflow_dispatch:
 
 permissions:
