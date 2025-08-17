@@ -8,7 +8,28 @@
 </head>
 
 <style>
-  .editor {
+  .flex {
+    display: flex;
+  }
+
+  .flex>.files {
+    border: 1px solid red;
+    width: 200px;
+    user-select: none;
+  }
+
+  .flex>.files>div.selected {
+    background-color: grey;
+    cursor: pointer;
+  }
+
+  .flex>.files>div:hover {
+    background-color: grey;
+    cursor: pointer;
+  }
+
+  .flex>.editor {
+    flex: 1;
     height: 600px;
     border: 1px solid grey;
   }
@@ -19,7 +40,11 @@
   }
 </style>
 
-<div class="editor"></div>
+<div class="flex">
+  <div class="files"></div>
+  <div class="editor"></div>
+</div>
+
 <pre class="output"></pre>
 
 <script>
@@ -34,15 +59,19 @@
 
     go.run(result.instance);
 
-    // Setup starter files
-    writeFile("index.html", "index.html");
-
     // Setup editor
     require.config({ paths: { vs: "https://unpkg.com/monaco-editor@0.52.2/min/vs" } });
 
     require(["vs/editor/editor.main"], function (monaco) {
+      // Setup starter files
+      writeFile("index.html", "index.html");
+      writeFile("index.js", "'index.js';");
+
       const prefersDarkTheme = window.matchMedia("(prefers-color-scheme: dark)");
-      let file = "index.html";
+      let currentFile = "index.html";
+
+      build(".");
+      updateFileTree();
 
       const editor = monaco.editor.createDiffEditor(document.querySelector("div.editor"), {
         theme: prefersDarkTheme.matches ? "vs-dark" : "vs-light",
@@ -63,19 +92,67 @@
         monaco.editor.setTheme(prefersDarkTheme.matches ? "vs-dark" : "vs-light");
       });
 
-      build(".");
       editor.setModel({
-        original: monaco.editor.createModel(new TextDecoder().decode(readFile(file)), "html"),
-        modified: monaco.editor.createModel(new TextDecoder().decode(readFile("build/" + file)), "html")
-      });
+        original: createModel(currentFile),
+        modified: createModel(currentFile === "html-cli.json" ? currentFile : "build/" + currentFile)
+      })
 
       editor.getOriginalEditor().onDidChangeModelContent(() => {
-        writeFile(file, editor.getOriginalEditor().getValue());
+        writeFile(currentFile, editor.getOriginalEditor().getValue());
         output.textContent = "";
 
         build(".");
-        editor.getModifiedEditor().setValue(new TextDecoder().decode(readFile("build/" + file)));
+        updateFileTree();
+
+        const updatedContent = new TextDecoder().decode(readFile(currentFile === "html-cli.json" ? currentFile : "build/" + currentFile));
+        editor.getModifiedEditor().setValue(updatedContent);
       });
+
+      fileTree.onclick = event => {
+        const { target } = event;
+
+        if (target.classList.contains("files") || target.classList.contains("selected")) {
+          return;
+        }
+
+        const selectedElements = fileTree.querySelectorAll(".selected");
+
+        selectedElements.forEach(element => element.classList.remove("selected"));
+        target.classList.add("selected");
+
+        currentFile = target.textContent;
+
+        editor.setModel({
+          original: createModel(currentFile),
+          modified: createModel("build/" + currentFile)
+        })
+      }
+
+      function createModel(file) {
+        const oldModel = monaco.editor.getModel(monaco.Uri.file(file));
+        if (oldModel) oldModel.dispose();
+
+        return monaco.editor.createModel(
+          new TextDecoder().decode(readFile(file)),
+          undefined,
+          monaco.Uri.file(file)
+        );
+      }
+
+      function updateFileTree() {
+        fileTree.textContent = ""; // Reset the tree
+
+        for (const file of readDir(".")) {
+          const div = document.createElement("div");
+
+          div.setAttribute("data-filename", file.name);
+          div.textContent = file.name;
+
+          div.classList.add(file.isDir ? "dir" : "file");
+          fileTree.appendChild(div);
+        }
+        fileTree.querySelector(`div.file[data-filename="${currentFile}"]`).classList.add("selected");
+      }
     });
   }
 
