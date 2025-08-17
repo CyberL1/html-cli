@@ -19,7 +19,7 @@ func main() {
 	global.Set("mkdirAll", js.FuncOf(fsMkdirAll))
 	global.Set("readFile", js.FuncOf(fsReadFile))
 	global.Set("readDir", js.FuncOf(fsReadDir))
-	global.Set("build", js.FuncOf(buildWrapper))
+	global.Set("build", js.FuncOf(build))
 
 	select {}
 }
@@ -99,22 +99,13 @@ func fsReadDir(this js.Value, args []js.Value) any {
 	return array
 }
 
-func buildWrapper(this js.Value, args []js.Value) any {
-	if err := build("."); err != nil {
-		fmt.Println("Build failed:", err)
-		return errorToJS(err)
-	}
-
-	fmt.Println("\nBuild complete")
-	return nil
-}
-
-func build(directory string) error {
+func build(this js.Value, args []js.Value) any {
 	buildDirectory := "build"
 
-	dirContents, err := afero.ReadDir(fs, directory)
+	dirContents, err := afero.ReadDir(fs, ".")
 	if err != nil {
-		return err
+		fmt.Println("Build failed:", err)
+		return errorToJS(err)
 	}
 
 	for _, file := range dirContents {
@@ -123,13 +114,14 @@ func build(directory string) error {
 		}
 
 		if file.IsDir() {
-			build(filepath.Join(directory, file.Name()))
+			build(this, []js.Value{js.ValueOf(file.Name())})
 		} else {
-			fmt.Println("Building:", filepath.Join(directory, file.Name()))
+			fmt.Println("Building:", filepath.Join(file.Name()))
 
-			fileContents, err := afero.ReadFile(fs, filepath.Join(directory, file.Name()))
+			fileContents, err := afero.ReadFile(fs, file.Name())
 			if err != nil {
-				return err
+				fmt.Println("Build failed:", err)
+				return errorToJS(err)
 			}
 
 			if filepath.Ext(file.Name()) == ".html" {
@@ -137,10 +129,11 @@ func build(directory string) error {
 				fileContents = utils.Minify(fileContents)
 			}
 
-			fs.MkdirAll(filepath.Join(buildDirectory, directory), 0775)
-			afero.WriteFile(fs, filepath.Join(buildDirectory, directory, file.Name()), fileContents, 0644)
+			fs.MkdirAll(buildDirectory, 0775)
+			afero.WriteFile(fs, filepath.Join(buildDirectory, file.Name()), fileContents, 0644)
 		}
 	}
+	fmt.Println("\nBuild complete")
 	return nil
 }
 
