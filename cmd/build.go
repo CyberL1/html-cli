@@ -12,7 +12,6 @@ import (
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	utils.LoadConfig(".")
 
 	buildCmd.Flags().StringVarP(&constants.Config.Build.Directory, "out", "o", "build", "Output directory")
 }
@@ -21,9 +20,11 @@ var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Build html",
 	Run: func(cmd *cobra.Command, args []string) {
+		utils.LoadConfig(".")
+
 		dirsToProcess := []string{"."}
 		var currentDir string
-		
+
 		for len(dirsToProcess) > 0 {
 			currentDir = dirsToProcess[len(dirsToProcess)-1]
 			dirsToProcess = dirsToProcess[:len(dirsToProcess)-1]
