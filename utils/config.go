@@ -22,6 +22,7 @@ func loadDefaults() {
 func LoadConfig(rootPath string) error {
 	configFile, err := os.ReadFile(filepath.Join(rootPath, "html-cli.json"))
 	if err != nil {
+		loadDefaults()
 		return err
 	}
 
