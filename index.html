@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>html-cli playground</title>
+  <script src="wasm_exec.js"></script>
+  <script src="https://unpkg.com/monaco-editor@0.52.2/min/vs/loader.js"></script>
+</head>
+
+<style>
+  .editor {
+    height: 600px;
+    border: 1px solid grey;
+  }
+
+  .output {
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+</style>
+
+<div class="editor"></div>
+<pre class="output"></pre>
+
+<script>
+  const fileTree = document.querySelector("div.files");
+  const output = document.querySelector("pre.output");
+
+  window.onload = async () => {
+    output.textContent = "";
+
+    const go = new Go();
+    const result = await WebAssembly.instantiateStreaming(fetch("html-cli.wasm"), go.importObject);
+
+    go.run(result.instance);
+
+    // Setup starter files
+    writeFile("index.html", "index.html");
+
+    // Setup editor
+    require.config({ paths: { vs: "https://unpkg.com/monaco-editor@0.52.2/min/vs" } });
+
+    require(["vs/editor/editor.main"], function (monaco) {
+      const prefersDarkTheme = window.matchMedia("(prefers-color-scheme: dark)");
+      let file = "index.html";
+
+      const editor = monaco.editor.createDiffEditor(document.querySelector("div.editor"), {
+        theme: prefersDarkTheme.matches ? "vs-dark" : "vs-light",
+        automaticLayout: true,
+        originalEditable: true,
+        readOnly: true,
+        scrollBeyondLastLine: false
+      });
+
+      monaco.editor.addKeybindingRules([
+        {
+          keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
+          command: "editor.action.formatDocument"
+        }
+      ]);
+
+      prefersDarkTheme.addEventListener("change", () => {
+        monaco.editor.setTheme(prefersDarkTheme.matches ? "vs-dark" : "vs-light");
+      });
+
+      build(".");
+      editor.setModel({
+        original: monaco.editor.createModel(new TextDecoder().decode(readFile(file)), "html"),
+        modified: monaco.editor.createModel(new TextDecoder().decode(readFile("build/" + file)), "html")
+      });
+
+      editor.getOriginalEditor().onDidChangeModelContent(() => {
+        writeFile(file, editor.getOriginalEditor().getValue());
+        output.textContent = "";
+
+        build(".");
+        editor.getModifiedEditor().setValue(new TextDecoder().decode(readFile("build/" + file)));
+      });
+    });
+  }
+
+  console.log = (...args) => output.textContent += args.join(" ") + "\n";
+</script>

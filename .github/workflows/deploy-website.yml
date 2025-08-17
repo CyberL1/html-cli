@@ -1,0 +1,58 @@
+name: Deploy website
+
+on:
+  push:
+    branches: ["website"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        path: cli
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24'
+
+    - uses: actions/checkout@v4
+      with:
+        path: website
+
+    - name: Get WASM files
+      working-directory: website
+      run: ./get-wasm-files.sh
+
+    - name: Build CLI
+      working-directory: cli
+      run: go build -o ../html-cli
+
+    - name: Build page
+      working-directory: website
+      run: ../html-cli build
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: website/build
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
