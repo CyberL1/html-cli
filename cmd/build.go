@@ -21,23 +21,31 @@ var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Build html",
 	Run: func(cmd *cobra.Command, args []string) {
-		dirContents, err := os.ReadDir(".")
-		if err != nil {
-			fmt.Println("Build failed:", err)
-			return
-		}
+		dirsToProcess := []string{"."}
+		var currentDir string
+		
+		for len(dirsToProcess) > 0 {
+			currentDir = dirsToProcess[len(dirsToProcess)-1]
+			dirsToProcess = dirsToProcess[:len(dirsToProcess)-1]
 
-		for _, file := range dirContents {
-			if file.Name() == "html-cli.json" || (file.IsDir() && file.Name() == constants.Config.Build.Directory) {
-				continue
+			dirContents, err := os.ReadDir(currentDir)
+			if err != nil {
+				fmt.Println("Build failed:", err)
+				return
 			}
 
-			if file.IsDir() {
-				cmd.Run(cmd, []string{file.Name()})
-			} else {
-				fmt.Println("Building:", file.Name())
+			for _, file := range dirContents {
+				if file.Name() == "html-cli.json" || (file.IsDir() && file.Name() == constants.Config.Build.Directory) {
+					continue
+				}
 
-				fileContents, err := os.ReadFile(file.Name())
+				if file.IsDir() {
+					dirsToProcess = append(dirsToProcess, filepath.Join(currentDir, file.Name()))
+					continue
+				}
+
+				fmt.Println("Building:", filepath.Join(currentDir, file.Name()))
+				fileContents, err := os.ReadFile(filepath.Join(currentDir, file.Name()))
 				if err != nil {
 					fmt.Println("Build failed:", err)
 					return
@@ -48,8 +56,8 @@ var buildCmd = &cobra.Command{
 					fileContents = utils.Minify(fileContents)
 				}
 
-				os.MkdirAll(constants.Config.Build.Directory, 0775)
-				os.WriteFile(filepath.Join(constants.Config.Build.Directory, file.Name()), fileContents, 0644)
+				os.MkdirAll(filepath.Join(constants.Config.Build.Directory, currentDir), 0775)
+				os.WriteFile(filepath.Join(constants.Config.Build.Directory, currentDir, file.Name()), fileContents, 0644)
 			}
 		}
 		fmt.Println("\nBuild complete")
