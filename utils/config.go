@@ -22,12 +22,12 @@ func loadDefaults() {
 func LoadConfig(rootPath string) error {
 	configFile, err := os.ReadFile(filepath.Join(rootPath, "html-cli.json"))
 	if err != nil {
-		return nil
+		return err
 	}
 
 	var config types.Config
 	if err := json.Unmarshal(configFile, &config); err != nil {
-		return fmt.Errorf("failed to decode html config: %s", err)
+		return fmt.Errorf("failed to decode config: %s", err)
 	}
 
 	constants.Config = config
