@@ -47,7 +47,7 @@ var buildCmd = &cobra.Command{
 					fileContents = utils.ApplyBoilerplate(fileContents, false)
 					fileContents = utils.Minify(fileContents)
 				}
-				
+
 				os.MkdirAll(constants.Config.Build.Directory, 0775)
 				os.WriteFile(filepath.Join(constants.Config.Build.Directory, file.Name()), fileContents, 0644)
 			}
