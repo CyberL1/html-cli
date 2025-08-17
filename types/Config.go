@@ -1,22 +1,22 @@
 package types
 
 type Config struct {
-	Dev   configDev   `json:"dev"`
-	Build configBuild `json:"build"`
+	Dev   ConfigDev   `json:"dev"`
+	Build ConfigBuild `json:"build"`
 }
 
-type configDev struct {
+type ConfigDev struct {
 	Port uint16 `json:"port"`
 }
 
-type configBuild struct {
+type ConfigBuild struct {
 	Directory string          `json:"directory"`
-	Html      configBuildHtml `json:"html"`
-	Css       configBuildCss  `json:"css"`
-	Js        configBuildJs   `json:"js"`
+	Html      ConfigBuildHtml `json:"html"`
+	Css       ConfigBuildCss  `json:"css"`
+	Js        ConfigBuildJs   `json:"js"`
 }
 
-type configBuildHtml struct {
+type ConfigBuildHtml struct {
 	KeepDocumentTags        bool      `json:"keepDocumentTags"`
 	KeepComments            bool      `json:"keepComments"`
 	KeepConditionalComments bool      `json:"keepConditionalComments"`
@@ -28,13 +28,13 @@ type configBuildHtml struct {
 	TemplateDelims          [2]string `json:"templateDelims"`
 }
 
-type configBuildCss struct {
+type ConfigBuildCss struct {
 	KeepCSS2  bool `json:"keepCSS2"`
 	Precision int  `json:"precision"`
 	Inline    bool `json:"inline"`
 }
 
-type configBuildJs struct {
+type ConfigBuildJs struct {
 	Precision    int  `json:"precision"`
 	KeepVarNames bool `json:"keepVarNames"`
 	Version      int  `json:"version"`

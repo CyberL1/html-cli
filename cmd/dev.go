@@ -18,7 +18,7 @@ func init() {
 	rootCmd.AddCommand(devCmd)
 
 	devCmd.Flags().StringP("root", "r", ".", "Directory to watch")
-	devCmd.Flags().Uint16VarP(&constants.Config.Dev.Port, "port", "p", 8080, "Port to run dev server on")
+	devCmd.Flags().Uint16VarP(&constants.Config.Dev.Port, "port", "p", constants.DefaultConfig.Dev.Port, "Port to run dev server on")
 }
 
 var devCmd = &cobra.Command{

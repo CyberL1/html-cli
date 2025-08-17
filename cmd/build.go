@@ -13,7 +13,7 @@ import (
 func init() {
 	rootCmd.AddCommand(buildCmd)
 
-	buildCmd.Flags().StringVarP(&constants.Config.Build.Directory, "out", "o", "build", "Output directory")
+	buildCmd.Flags().StringVarP(&constants.Config.Build.Directory, "out", "o", constants.DefaultConfig.Build.Directory, "Output directory")
 }
 
 var buildCmd = &cobra.Command{

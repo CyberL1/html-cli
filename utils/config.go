@@ -11,11 +11,11 @@ import (
 
 func loadDefaults() {
 	if constants.Config.Dev.Port == 0 {
-		constants.Config.Dev.Port = 8080
+		constants.Config.Dev.Port = constants.DefaultConfig.Dev.Port
 	}
 
 	if constants.Config.Build.Directory == "" {
-		constants.Config.Build.Directory = "build"
+		constants.Config.Build.Directory = constants.DefaultConfig.Build.Directory
 	}
 }
 
