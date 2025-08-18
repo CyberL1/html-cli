@@ -64,6 +64,32 @@
 
     require(["vs/editor/editor.main"], function (monaco) {
       // Setup starter files
+      writeFile("html-cli.json", JSON.stringify({
+        "build": {
+          "directory": "build",
+          "html": {
+            "keepDocumentTags": false,
+            "keepComments": false,
+            "keepConditionalComments": false,
+            "keepSpecialComments": false,
+            "keepDefaultAttrVals": false,
+            "keepEndTags": false,
+            "keepQuotes": false,
+            "keepWhitespace": false,
+            "templateDelims": ["{", "}"]
+          },
+          "css": {
+            "precision": 0,
+            "keepCSS2": false
+          },
+          "js": {
+            "keepVarNames": false,
+            "precision": 0,
+            "version": 0
+          }
+        }
+      }, null, 2));
+
       writeFile("index.html", "index.html");
       writeFile("index.js", "'index.js';");
 
