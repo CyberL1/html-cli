@@ -1,0 +1,8 @@
+README.md
+go.mod
+go.sum
+main.go
+cmd
+utils/config.go
+types/GithubRelease.go
+utils/version.go
