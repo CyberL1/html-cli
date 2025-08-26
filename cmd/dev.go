@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html-cli/constants"
 	"html-cli/utils"
+	"io/fs"
 	"mime"
 	"net/http"
 	"os"
@@ -35,11 +36,18 @@ var devCmd = &cobra.Command{
 		}
 		defer watcher.Close()
 
-		err = watcher.Add(root)
-		if err != nil {
-			fmt.Println("Error adding watcher:", err)
-			return
-		}
+		filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if entry.IsDir() {
+				if err = watcher.Add(path); err != nil {
+					fmt.Println("Error adding watcher:", err)
+				}
+			}
+			return nil
+		})
 
 		sseClients := make([]chan struct{}, 0)
 		handler := http.NewServeMux()
